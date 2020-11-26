@@ -1,0 +1,108 @@
+---
+title: "QBS181-HW2"
+author: "Yuxin Sun"
+date: "10/20/2020"
+output:
+  pdf_document: default
+  word_document: default
+---
+
+```{r warning=FALSE}
+library("RODBC")
+library(dplyr)
+library(lubridate)
+myconn<-odbcConnect("dartmouthqbs181","yusun","yusun@qbs181")
+```
+
+\section{Q1}
+```{r message=FALSE, warning=FALSE}
+data.phonecall <- sqlQuery(myconn, 'select * from PhoneCall_Encounter')
+
+data.phonecall$EnrollmentGroup <- data.phonecall$EncounterCode
+
+data.phonecall$EnrollmentGroup[data.phonecall$EncounterCode == 125060000] <- 'Clinical Alert'
+
+data.phonecall$EnrollmentGroup[data.phonecall$EncounterCode == 125060001] <- 'Health Coaching'
+
+data.phonecall$EnrollmentGroup[data.phonecall$EncounterCode == 125060002] <- 'Technixal Question'
+
+data.phonecall$EnrollmentGroup[data.phonecall$EncounterCode == 125060003] <- 'Administrative'
+
+data.phonecall$EnrollmentGroup[data.phonecall$EncounterCode == 125060004] <- 'Other'
+
+data.phonecall$EnrollmentGroup[data.phonecall$EncounterCode == 125060005] <- 'Lack of engagement'
+
+
+data.phonecall[sample(nrow(data.phonecall), 10), ]
+```
+
+
+\section{Q2}
+```{r message=FALSE, warning=FALSE}
+data.phonecall %>%
+  group_by(EnrollmentGroup) %>%
+  summarise(count=n())
+```
+\section{Q3}
+```{r}
+data.duration <- sqlQuery(myconn, 'select * from CallDuration')
+
+data <- merge(data.phonecall ,data.duration, by.x = "CustomerId", by.y = "tri_CustomerIDEntityReference")
+
+data[sample(nrow(data), 10), ]
+```
+
+\section{Q4}
+```{r message=FALSE, warning=FALSE}
+data %>%
+  group_by(CallType) %>%
+  summarise(count=n())
+```
+
+```{r message=FALSE, warning=FALSE}
+data %>%
+  group_by(CallOutcome) %>%
+  summarise(count=n())
+```
+
+```{r message=FALSE, warning=FALSE}
+data %>%
+  group_by(EnrollmentGroup) %>%
+  summarise(count=n())
+```
+
+
+\section{Q5}
+```{r message=FALSE, warning=FALSE, include=FALSE}
+data.demographics <- sqlQuery(myconn, 'select * from Demographics')
+
+data.conditions <- sqlQuery(myconn, 'select * from dbo.Conditions')
+
+data.text <- sqlQuery(myconn, 'select * from Text')
+
+data <- merge(data.demographics, data.conditions, by.x = "contactid", by.y = "tri_patientid")
+
+data <- merge(data, data.text, by.x = "contactid", by.y = "tri_contactId")
+
+data$TextSentYear <- year(ymd(data$TextSentDate))
+
+data$TextSentWeek <- week(ymd(data$TextSentDate))
+```
+
+```{r message=FALSE, warning=FALSE}
+data.summary <- data %>%
+  group_by(SenderName, TextSentYear, TextSentWeek) %>%
+  summarise(count=n())
+
+data.summary[sample(nrow(data.summary), 10), ]
+```
+
+\section{Q6}
+```{r message=FALSE, warning=FALSE}
+data.summary <- data %>%
+  group_by(tri_name, TextSentYear, TextSentWeek) %>%
+  summarise(count=n())
+
+data.summary[sample(nrow(data.summary), 10), ]
+```
+
