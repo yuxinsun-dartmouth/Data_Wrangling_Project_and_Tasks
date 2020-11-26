@@ -1,0 +1,66 @@
+---
+title: "QBS181_HWK3"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyr)
+library(nycflights13)
+```
+
+\section{Question 1}
+
+```{r}
+# rate for table2
+table2 %>% 
+  spread(key=type, value=count) %>% 
+  dplyr::mutate('rate' = cases/population *10000)
+```
+
+
+```{r}
+# rate for table4a + table4b
+merge(gather(table4a, `1999`,`2000`, key='year', value='cases'),
+      gather(table4b, `1999`,`2000`, key='year', value='population'),
+      by=c("country", "year")) %>%
+      dplyr::mutate('rate' = cases/population *10000)
+```
+
+\section{Question 2}
+
+```{r}
+table4a%>%gather('1999','2000',key="year",value="cases")
+```
+
+
+\section{Question 3}
+(a)
+```{r message=FALSE, warning=FALSE}
+flights=dplyr::mutate(flights, flight_times=arr_time-dep_time)
+
+flights %>% dplyr::group_by(year, month, day) %>% 
+  dplyr::summarize(mean_flight_times=mean(flight_times,na.rm=TRUE))
+```
+(b)
+```{r message=FALSE, warning=FALSE}
+flights=dplyr::mutate(flights,diff_in_dep_delay = dep_delay-(dep_time-sched_dep_time))
+
+flights %>% dplyr::group_by(year, month, day) %>% 
+  dplyr::summarize(diff_in_dep_delay=max(diff_in_dep_delay,na.rm=TRUE))
+```
+They are not consistent.
+
+(c)
+```{r}
+flights=dplyr::mutate(flights,is_delayed = (dep_time-sched_dep_time) > 0)
+
+flights %>% dplyr::select(year:day, is_delayed, dep_delay) %>%
+        dplyr::filter((dep_delay>=20 & dep_delay<=30) | (dep_delay>=50 & dep_delay<=60)) %>%
+        dplyr::filter(is_delayed==F)
+```
