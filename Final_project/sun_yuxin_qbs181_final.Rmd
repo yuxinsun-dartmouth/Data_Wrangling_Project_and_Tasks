@@ -1,0 +1,134 @@
+---
+title: "QBS181_Final"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r message=FALSE, warning=FALSE}
+library(dplyr)
+library(tidyverse)
+```
+
+```{r eval=FALSE, include=TRUE}
+library("RODBC")
+```
+
+\section{Question 1}
+```{r eval=FALSE, include=TRUE}
+data <- read.csv("IC_BP_v2.csv")
+```
+
+```{r include=FALSE}
+data <- read.csv("IC_BP_v2_merged.csv")
+```
+
+(a)
+```{r}
+data$BPStatus <- data$BPAlerts
+```
+
+```{r}
+data[sample(nrow(data), 10),  c("SystolicValue","Diastolicvalue","BPAlerts","BPStatus")]
+```
+
+(b)
+```{r}
+data[which(data$BPAlerts=="Hypo1"), "BPStatus"] <- "Controlled blood pressure"
+data[which(data$BPAlerts=="Normal"), "BPStatus"] <- "Controlled blood pressure"
+```
+
+```{r}
+data[which(data$BPAlerts %in% c("Hypo2","HTN1","HTN2", "HTN3")), "BPStatus"] <- "Uncontrolled blood pressure"
+```
+
+```{r}
+data[which(data$BPStatus=="Controlled blood pressure"), "BPStatus"] <- 1
+data[which(data$BPStatus=="Uncontrolled blood pressure"), "BPStatus"] <- 0
+```
+
+```{r}
+data[sample(nrow(data), 10), c("SystolicValue","Diastolicvalue","BPAlerts","BPStatus")]
+```
+(c)
+```{r eval=FALSE, include=TRUE}
+myconn<-odbcConnect("dartmouthqbs181","yusun","yusun@qbs181")
+
+data.demographics <- sqlQuery(myconn, 'select * from Demographics')
+
+data <- merge(data, data.demographics, by.x = "ID", by.y = "contactid")
+```
+```{r}
+data[sample(nrow(data), 10),  
+     c("BPAlerts", "tri_imaginecareenrollmentemailsentdate", "tri_enrollmentcompletedate")]
+```
+(d)
+```{r message=FALSE, warning=FALSE}
+data$BPStatus = as.numeric(data$BPStatus)
+data.scores <- data %>% 
+  group_by(ID, ObservedTime) %>%
+  summarise(BPScores = mean(BPStatus, na.rm = T))
+```
+```{r}
+data.scores[sample(nrow(data.scores), 10),]
+```
+(e)
+```{r message=FALSE, warning=FALSE}
+data.score.change <- data.scores %>% 
+  group_by(ID) %>%
+  summarise(first(BPScores) - last(BPScores))
+```
+```{r}
+data.score.change[sample(nrow(data.score.change), 10),]
+```
+(f)
+```{r}
+df <- data.score.change[which(data.score.change['first(BPScores) - last(BPScores)'] < -0.5),]
+df[sample(nrow(df), 10),]
+```
+```{r}
+dim(df)[1]
+```
+\section{Question 2}
+```{r echo=FALSE, out.width='100%'}
+knitr::include_graphics('screenshot/final_Q2.png')
+```
+
+
+\section{Question 3}
+```{r message=FALSE, warning=FALSE, include=FALSE}
+data.demographics <- read.csv("demographics.csv")
+data.conditions <- read.csv("conditions.csv")
+data.text <- read.csv("text.csv")
+demographics.conditions.lasttext <- read.csv("demographics_conditions_lasttext.csv")
+```
+
+```{r eval=FALSE, include=TRUE}
+data.demographics <- sqlQuery(myconn, 'select * from Demographics')
+
+data.conditions <- sqlQuery(myconn, 'select * from Conditions')
+
+data.text <- sqlQuery(myconn, "select * from Text")
+```
+
+```{r eval=FALSE, include=TRUE}
+demographics.conditions <- merge(data.demographics, data.conditions, 
+                                      by.x = "contactid", by.y = "tri_patientid", how='left')
+
+demographics.conditions.text <- merge(demographics.conditions, data.text, 
+                       by.x = "contactid", by.y = "tri_contactId", how='left')
+
+demographics.conditions.lasttext <- demographics.conditions.text 
+%>% group_by(contactid) 
+%>% slice(which.max(TextSentDate))
+```
+
+```{r}
+demographics.conditions.lasttext[sample(nrow(demographics.conditions.lasttext), 10), 
+                   c("tri_enrollmentcompletedate", "gender", "SenderName", "TextSentDate")]
+```
+
+\section{Question 4}
+https://github.com/yuxinsun-dartmouth/Data_Wrangling_Project_and_Tasks
