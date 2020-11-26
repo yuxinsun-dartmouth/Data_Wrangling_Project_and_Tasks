@@ -1,0 +1,429 @@
+---
+title: "QBS_181_Midterm"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(Hmisc)
+
+data <- sasxport.get("DIQ_I.xpt")
+```
+\section{Q1}
+(a) There is missing data in many of columns. For example, in the 'High Blood Sugar' column, there are
+9498 out of 9575 missing values, in 'Craving for sweet/eating a lot of sugar' column, there are 9564 out of 9575 missing values. So we can't simply remove the rows with missing values. The summary of missing values are given below
+```{r}
+for (col in colnames(data)) {
+  print(c('number of missing values: ',  sum(is.na(data[col]))))
+  print(describe(data[col]))
+}
+```
+From above summaries we can verify the counts of missing values are consistent with the description in the website.
+
+(b) The values of some columns are categorical, meaning we can't simply replace the missing values by the mean. We noticed the check items, for example, the tag DIQ060U, DIQ229 and DIQ295 specifies from which column the remaining columns all have missing values. For example if ages less than 12 the columns from DIQ300S all have missing values. We further noticed that in column
+'Feel could be at risk for diabetes' if the answers are 'No', all values up to column DIQ180 are missing. Therefore, we may only keep those answers 'Yes' in that column.
+
+(c) The codes and missing values are less descriptive without referring to the website. We are going to replace the code with descriptive words as explained in the dataset. 
+
+
+
+\section{Q2}
+We first replace the missing values and some code with descriptive words:
+```{r}
+data$diq010[data$diq010 == 1] <- "Yes"
+data$diq010[data$diq010 == 2] <- "No"
+data$diq010[data$diq010 == 3] <- "Borderline"
+data$diq010[data$diq010 == 7] <- "Refused"
+data$diq010[data$diq010 == 9] <- "Don't know"
+data[sample(nrow(data), 10), "diq010"]
+```
+```{r}
+# do did040
+data$did040[data$did040 == 666] <- "Less than 1 year"
+data$did040[data$did040 == 777] <- "Refused"
+data$did040[data$did040 == 999] <- "Don't know"
+data[sample(nrow(data), 10), "did040"]
+```
+
+```{r}
+# do diq160
+data$diq160[data$diq160 == 1] <- "Yes"
+data$diq160[data$diq160 == 2] <- "No"
+data$diq160[data$diq160 == 7] <- "Refused"
+data$diq160[data$diq160 == 9] <- "Don't know"
+data[sample(nrow(data), 10), "diq160"]
+```
+`
+```{r}
+# do diq170
+data$diq170[data$diq170 == 1] <- "Yes"
+data$diq170[data$diq170 == 2] <- "No"
+data$diq170[data$diq170 == 7] <- "Refused"
+data$diq170[data$diq170 == 9] <- "Don't know"
+data[sample(nrow(data), 10), "diq170"]
+```
+
+```{r}
+# do diq172
+data$diq172[data$diq172 == 1] <- "Yes"
+data$diq172[data$diq172 == 2] <- "No"
+data$diq172[data$diq172 == 7] <- "Refused"
+data$diq172[data$diq172 == 9] <- "Don't know"
+data[sample(nrow(data), 10), "diq172"]
+```
+
+```{r}
+# do diq175a
+data$diq175a[data$diq175a == 10] <- "Family history"
+data$diq175a[data$diq175a == 77] <- "Refused"
+data$diq175a[data$diq175a == 99] <- "Don't know"
+data[sample(nrow(data), 10), "diq175a"]
+```
+
+```{r}
+# do diq175b
+data$diq175b[data$diq175b == 11] <- "Overweight"
+data[sample(nrow(data), 10), "diq175b"]
+```
+
+```{r}
+# do diq175c
+data$diq175c[data$diq175c == 12] <- "Age"
+data[sample(nrow(data), 10), "diq175c"]
+```
+
+```{r}
+# do diq175d
+data$diq175d[data$diq175d == 13] <- "Poor diet"
+data[sample(nrow(data), 10), "diq175d"]
+```
+
+```{r}
+# do diq175E
+data$diq175e[data$diq175e == 14] <- "Race"
+data[sample(nrow(data), 10), "diq175e"]
+```
+
+```{r}
+# do diq175F
+data$diq175f[data$diq175f == 15] <- "Had a baby weighed over 9 lbs. at birth"
+data[sample(nrow(data), 10), "diq175f"]
+```
+
+```{r}
+# do diq175g
+data$diq175g[data$diq175g == 16] <- "Lack of physical activity"
+data[sample(nrow(data), 10), "diq175g"]
+```
+
+```{r}
+# do diq175H
+data$diq175h[data$diq175h == 17] <- "High blood pressure"
+data[sample(nrow(data), 10), "diq175h"]
+```
+
+```{r}
+# do diq175I
+data$diq175i[data$diq175i == 18] <- "High blood sugar"
+data[sample(nrow(data), 10), "diq175i"]
+```
+
+```{r}
+# do diq175j
+data$diq175j[data$diq175j == 19] <- "High cholesterol"
+data[sample(nrow(data), 10), "diq175j"]
+```
+
+```{r}
+# do diq175K
+data$diq175k[data$diq175k == 20] <- "Hypoglycemic"
+data[sample(nrow(data), 10), "diq175k"]
+```
+
+```{r}
+# do diq175L
+data$diq175l[data$diq175l == 21] <- "Extreme hunger"
+data[sample(nrow(data), 10), "diq175l"]
+```
+
+```{r}
+# do diq175m
+data$diq175m[data$diq175m == 22] <- "Tingling/numbness in hands or feet"
+data[sample(nrow(data), 10), "diq175m"]
+```
+
+```{r}
+# do diq175n
+data$diq175n[data$diq175n == 23] <- "Blurred vision"
+data[sample(nrow(data), 10), "diq175n"]
+```
+
+```{r}
+# do diq175o
+data$diq175o[data$diq175o == 24] <- "Increased fatigue"
+data[sample(nrow(data), 10), "diq175o"]
+```
+
+```{r}
+# do diq175p
+data$diq175p[data$diq175p == 25] <- "Anyone could be at risk"
+data[sample(nrow(data), 10), "diq175p"]
+```
+
+```{r}
+# do diq175q
+data$diq175q[data$diq175q == 26] <- "Doctor warning"
+data[sample(nrow(data), 10), "diq175q"]
+```
+
+```{r}
+# do diq175r
+data$diq175r[data$diq175r == 27] <- "Other, specify"
+data[sample(nrow(data), 10), "diq175r"]
+```
+
+```{r}
+# do diq175s
+data$diq175s[data$diq175s == 28] <- "Gestational diabetes"
+data[sample(nrow(data), 10), "diq175s"]
+```
+
+```{r}
+# do diq175t
+data$diq175t[data$diq175t == 29] <- "Frequent urination"
+data[sample(nrow(data), 10), "diq175t"]
+```
+
+```{r}
+# do diq175u
+data$diq175u[data$diq175u == 30] <- "Thirst"
+data[sample(nrow(data), 10), "diq175u"]
+```
+
+```{r}
+# do diq175v
+data$diq175v[data$diq175v == 31] <- "Craving for sweet/eating a lot of sugar"
+data[sample(nrow(data), 10), "diq175v"]
+```
+
+```{r}
+# do diq175w
+data$diq175w[data$diq175w == 32] <- "Medication"
+data[sample(nrow(data), 10), "diq175w"]
+```
+
+```{r}
+# do diq175x
+data$diq175x[data$diq175x == 33] <- "Polycystic ovarian syndrome"
+data[sample(nrow(data), 10), "diq175x"]
+```
+
+```{r}
+# do diq180
+data$diq180[data$diq180 == 1] <- "Yes"
+data$diq180[data$diq180 == 2] <- "No"
+data$diq180[data$diq180 == 7] <- "Refused"
+data$diq180[data$diq180 == 9] <- "Don't know"
+data[sample(nrow(data), 10), "diq180"]
+```
+
+```{r}
+# do diq050
+data$diq050[data$diq050 == 1] <- "Yes"
+data$diq050[data$diq050 == 2] <- "No"
+data$diq050[data$diq050 == 7] <- "Refused"
+data$diq050[data$diq050 == 9] <- "Don't know"
+data[sample(nrow(data), 10), "diq050"]
+```
+
+```{r}
+# do diq060
+data$diq060[data$diq060 == 666] <- "Less than 1 month"
+data$diq060[data$diq060 == 777] <- "Refused"
+data$diq060[data$diq060 == 999] <- "Don't know"
+data[sample(nrow(data), 10), "diq060"]
+```
+
+```{r}
+# do diq060U
+data$diq060u[data$diq060u == 1] <- "Months"
+data$diq060u[data$diq060u == 2] <- "Years"
+data[sample(nrow(data), 10), "diq060u"]
+```
+
+```{r}
+# do diq070
+data$diq070[data$diq070 == 1] <- "Yes"
+data$diq070[data$diq070 == 2] <- "No"
+data$diq070[data$diq070 == 7] <- "Refused"
+data$diq070[data$diq070 == 9] <- "Don't know"
+data[sample(nrow(data), 10), "diq070"]
+```
+
+```{r}
+# do diq230
+data$diq230[data$diq230 == 1] <- "1 year ago or less"
+data$diq230[data$diq230 == 2] <- "More than 1 year ago but no more than 2 years ago"
+data$diq230[data$diq230 == 3] <- "More than 2 years ago but no more than 5 years ago"
+data$diq230[data$diq230 == 4] <- "More than 5 years ago"
+data$diq230[data$diq230 == 5] <- "Never"
+data$diq230[data$diq230 == 7] <- "Refused"
+data$diq230[data$diq230 == 9] <- "Don't know"
+data[sample(nrow(data), 10), "diq230"]
+```
+
+```{r}
+# do diq240
+data$diq240[data$diq240 == 1] <- "Yes"
+data$diq240[data$diq240 == 2] <- "No"
+data$diq240[data$diq240 == 7] <- "Refused"
+data$diq240[data$diq240 == 9] <- "Don't know"
+data[sample(nrow(data), 10), "diq240"]
+```
+
+
+```{r}
+# do diq260
+data$diq260[data$diq260 == 0] <- "Never"
+data$did040[data$diq260 == 777] <- "Refused"
+data$diq260[data$diq260 == 999] <- "Don't know"
+data[sample(nrow(data), 10), "diq260"]
+```
+
+```{r}
+# do diq260u
+data$diq260u[data$diq260u == 1] <- "Per day"
+data$diq260u[data$diq260u == 2] <- "Per week"
+data$diq260u[data$diq260u == 3] <- "Per month"
+data$diq260u[data$diq260u == 4] <- "Per year"
+data[sample(nrow(data), 10), "diq260u"]
+```
+
+```{r}
+# do diq275
+data$diq275[data$diq275 == 1] <- "Yes"
+data$diq275[data$diq275 == 2] <- "No"
+data$diq275[data$diq275 == 7] <- "Refused"
+data$diq275[data$diq275 == 9] <- "Don't know"
+data[sample(nrow(data), 10), "diq275"]
+```
+
+```{r}
+# do diq280
+data$diq280[data$diq280 == 777] <- "Refused"
+data$diq280[data$diq280 == 999] <- "Don't know"
+data[sample(nrow(data), 10), "diq280"]
+```
+
+```{r}
+# do diq291
+data$diq291[data$diq291 == 1] <- "Less than 6"
+data$diq291[data$diq291 == 2] <- "Less than 7"
+data$diq291[data$diq291 == 3] <- "Less than 8"
+data$diq291[data$diq291 == 4] <- "Less than 9"
+data$diq291[data$diq291 == 5] <- "Less than 10"
+data$diq291[data$diq291 == 6] <- "Provider did not specify goal"
+data$diq291[data$diq291 == 77] <- "Refused"
+data$diq291[data$diq291 == 99] <- "Don't know"
+data[sample(nrow(data), 10), "diq291"]
+```
+
+```{r}
+# do diq300s
+data$diq300s[data$diq300s == 7777] <- "Refused"
+data$diq300s[data$diq300s == 9999] <- "Don't know"
+data[sample(nrow(data), 10), "diq300s"]
+```
+
+```{r}
+# do diq300d
+data$diq300d[data$diq300d == 7777] <- "Refused"
+data$diq300d[data$diq300d == 9999] <- "Don't know"
+data[sample(nrow(data), 10), "diq300d"]
+```
+
+
+```{r}
+# do did310d
+data$did310d[data$did310d == 6666] <- "Provider did not specify goal"
+data$did310d[data$did310d== 7777] <- "Refused"
+data$did310d[data$did310d == 9999] <- "Don't know"
+data[sample(nrow(data), 10), "did310d"]
+```
+
+```{r}
+# do did320
+data$did320[data$did320 == 5555] <- "Never heard of LDL"
+data$did320[data$did320 == 6666] <- "Never had cholesterol test"
+data$did320[data$did320 == 7777] <- "Refused"
+data$did320[data$did320 == 9999] <- "Don't know"
+data[sample(nrow(data), 10), "did320"]
+```
+
+```{r}
+# do did330
+data$did330[data$did330 == 6666] <- "Provider did not specify goal"
+data$did330[data$did330 == 7777] <- "Refused"
+data$did330[data$did330 == 9999] <- "Don't know"
+data[sample(nrow(data), 10), "did330"]
+```
+
+```{r}
+# do did341
+data$did341[data$did341 == 0] <- "None"
+data$did341[data$did341 == 7777] <- "Refused"
+data$did341[data$did341 == 9999] <- "Don't know/not sure"
+data[sample(nrow(data), 10), "did341"]
+```
+
+```{r}
+# do did350
+data$did350[data$did350 == 0] <- "None"
+data$did350[data$did350 == 7777] <- "Refused"
+data$did350[data$did350 == 9999] <- "Don't know"
+data[sample(nrow(data), 10), "did350"]
+```
+
+```{r}
+# do diq350u
+data$diq350u[data$diq350u == 1] <- "Per day"
+data$diq350u[data$diq350u == 2] <- "Per week"
+data$diq350u[data$diq350u == 3] <- "Per month"
+data$diq350u[data$diq350u == 4] <- "Per year"
+data[sample(nrow(data), 10), "diq350u"]
+```
+
+```{r}
+# do diq360
+data$diq360[data$diq360 == 1] <- "Less than 1 month"
+data$diq360[data$diq360 == 2] <- "1-12 months"
+data$diq360[data$diq360 == 3] <- "13-24 months"
+data$diq360[data$diq360 == 4] <- "Greater than 2 years"
+data$diq360[data$diq360 == 5] <- "Never"
+data$diq360[data$diq360 == 7] <- "Refused"
+data$diq360[data$diq360 == 9] <- "Don't know"
+data[sample(nrow(data), 10), "diq360"]
+```
+
+```{r}
+# do diq080
+data$diq080[data$diq080 == 1] <- "Yes"
+data$diq080[data$diq080 == 2] <- "No"
+data$diq080[data$diq080 == 7] <- "Refused"
+data$diq080[data$diq080 == 9] <- "Don't know"
+data[sample(nrow(data), 10), "diq080"]
+```
+
+Last, we will keep those answers 'Yes' in the 'Feel could be at risk for diabetes' column.
+```{r}
+small_data <- data[((data$diq010=="Borderline")|(data$diq160=="Yes")), ]
+
+mydata <- small_data[which(small_data$diq172=="Yes"),]
+```
+After data cleaning, the size of data is down to 453 rows. We will store the data as the csv file and put it into database for further analysis.
+```{r}
+write.csv(mydata, 'DIQ_I_cleaned.csv')
+```
